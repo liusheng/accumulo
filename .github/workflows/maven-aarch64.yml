@@ -22,18 +22,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       # 
-      - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Run commands
-        id: runcmd
+      - uses: docker://multiarch/ubuntu-core:arm64-bionic
         with:
-          arch: aarch64
-          distro: ubuntu18.04
-
-          # Not required, but speeds up builds by storing container images in
-          # a GitHub package registry.
-          githubToken: ${{ github.token }}
-
-          run: |
-            uname -a
-            apt-get update && apt-get install -y --no-install-recommends git maven openjdk-11-jdk npm curl make g++
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64
+          args: >
+            bash -c
+            "apt-get update &&
+            apt-get install -y --no-install-recommends git maven openjdk-11-jdk npm curl make g++ &&
+            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64 &&
+            git clone https://github.com/apache/accumulo  &&
+            cd accumulo &&
+            mvn -e clean install"
